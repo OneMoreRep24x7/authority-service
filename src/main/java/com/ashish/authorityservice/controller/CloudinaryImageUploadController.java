@@ -18,10 +18,17 @@ public class CloudinaryImageUploadController {
     @Autowired
     CloudinaryImgService cloudinaryImgService;
 
-    @PostMapping
+    @PostMapping("/images")
     public ResponseEntity<Map> uploadImage(@RequestParam("image")MultipartFile file){
         String folder = "Certificates";
         Map data = cloudinaryImgService.upload(file,folder);
+        return ResponseEntity.ok(data);
+    }
+
+    @PostMapping("/videos")
+    public ResponseEntity<Map> uploadVideo(@RequestParam("video")MultipartFile file){
+        String folder = "Workouts";
+        Map data = cloudinaryImgService.uploadVideo(file,folder);
         return ResponseEntity.ok(data);
     }
 }

@@ -6,4 +6,6 @@ import java.util.Map;
 
 public interface CloudinaryImgService {
     Map upload(MultipartFile file,String folder);
+
+    Map<String, Object> uploadVideo(MultipartFile file , String folder);
 }

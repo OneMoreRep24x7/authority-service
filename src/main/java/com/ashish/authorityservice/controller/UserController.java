@@ -38,6 +38,11 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(updateRequest, file));
     }
 
+    @GetMapping("/getDetails")
+    public ResponseEntity<User> getDetails(@RequestParam("userId") UUID userId){
+        return ResponseEntity.ok(userService.getUserDetails(userId));
+    }
+
 
 
 }

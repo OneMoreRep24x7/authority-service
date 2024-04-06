@@ -30,6 +30,8 @@ public class UserServiceImpl implements UserService{
                 .lastName(userDto.getLastName())
                 .email(userDto.getEmail())
                 .role(userDto.getRole())
+                .isPremium(userDto.isPremium())
+                .trialValid(userDto.getTrialValid())
                 .build();
     userRepository.save(user);
     }
@@ -66,5 +68,15 @@ public class UserServiceImpl implements UserService{
                 .message("User not found")
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .build();
+    }
+
+    @Override
+    public User getUserDetails(UUID userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if(optionalUser.isPresent()){
+            User user = optionalUser.get();
+            return user;
+        }
+        return null;
     }
 }
