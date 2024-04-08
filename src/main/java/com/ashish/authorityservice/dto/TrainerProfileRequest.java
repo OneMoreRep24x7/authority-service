@@ -1,21 +1,19 @@
 package com.ashish.authorityservice.dto;
 
-import com.ashish.authorityservice.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@Builder
+import java.util.UUID;
+
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateResponse {
-
-    private User user;
-    private String message;
-    private int statusCode;
-
-
+@Builder
+@Data
+public class TrainerProfileRequest {
+    private UUID id;
+    private String qualification;
+    private int slots;
 
 }

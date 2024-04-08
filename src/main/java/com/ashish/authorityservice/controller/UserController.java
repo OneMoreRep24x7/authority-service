@@ -1,10 +1,9 @@
 package com.ashish.authorityservice.controller;
 
-import com.ashish.authorityservice.dto.UpdateResponse;
-import com.ashish.authorityservice.dto.UpdateRequest;
+import com.ashish.authorityservice.dto.UserAddResponse;
+import com.ashish.authorityservice.dto.UserAddRequest;
 import com.ashish.authorityservice.dto.UserDto;
 import com.ashish.authorityservice.model.User;
-import com.ashish.authorityservice.service.CloudinaryImgService;
 import com.ashish.authorityservice.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.DataInput;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -28,14 +26,14 @@ public class UserController {
         userService.registerUser(userDto);
     }
 
-    @PostMapping("/update")
-    public ResponseEntity<UpdateResponse> updateUser(
+    @PostMapping("/add")
+    public ResponseEntity<UserAddResponse> addUser(
             @RequestPart("file") MultipartFile file,
             @RequestParam("profileRequest") String profileRequest) throws IOException {
 
         ObjectMapper objectMapper = new ObjectMapper();
-        UpdateRequest updateRequest = objectMapper.readValue( profileRequest,UpdateRequest.class);
-        return ResponseEntity.ok(userService.updateUser(updateRequest, file));
+        UserAddRequest userAddRequest = objectMapper.readValue( profileRequest, UserAddRequest.class);
+        return ResponseEntity.ok(userService.addUser(userAddRequest, file));
     }
 
     @GetMapping("/getDetails")

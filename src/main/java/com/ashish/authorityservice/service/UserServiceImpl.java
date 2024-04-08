@@ -1,7 +1,7 @@
 package com.ashish.authorityservice.service;
 
-import com.ashish.authorityservice.dto.UpdateResponse;
-import com.ashish.authorityservice.dto.UpdateRequest;
+import com.ashish.authorityservice.dto.UserAddResponse;
+import com.ashish.authorityservice.dto.UserAddRequest;
 import com.ashish.authorityservice.dto.UserDto;
 import com.ashish.authorityservice.model.User;
 import com.ashish.authorityservice.repository.UserRepository;
@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UpdateResponse updateUser(UpdateRequest req , MultipartFile img) {
+    public UserAddResponse addUser(UserAddRequest req , MultipartFile img) {
         UUID userId = req.getId();
         Optional<User> optionalUser = userRepository.findById(userId);
         if(optionalUser.isPresent()){
@@ -58,13 +58,13 @@ public class UserServiceImpl implements UserService{
             user.setImageName(imageUrl);
 
             User savedUser = userRepository.save(user);
-            return  UpdateResponse.builder()
+            return  UserAddResponse.builder()
                     .user(savedUser)
                     .message("User updated successfully...")
                     .statusCode(HttpStatus.OK.value())
                     .build();
         }
-        return UpdateResponse.builder()
+        return UserAddResponse.builder()
                 .message("User not found")
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .build();
