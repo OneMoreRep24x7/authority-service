@@ -1,29 +1,40 @@
 package com.ashish.authorityservice.service;
 
-import com.ashish.authorityservice.dto.UserAddResponse;
-import com.ashish.authorityservice.dto.UserAddRequest;
-import com.ashish.authorityservice.dto.UserDto;
+import com.ashish.authorityservice.configuartion.feignClient.AuthProxy;
+import com.ashish.authorityservice.dto.*;
+import com.ashish.authorityservice.model.Trainer;
 import com.ashish.authorityservice.model.User;
+import com.ashish.authorityservice.repository.TrainerRepository;
 import com.ashish.authorityservice.repository.UserRepository;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
-    CloudinaryImgService cloudinaryImgService;
+    private TrainerRepository trainerRepository;
+    @Autowired
+    private CloudinaryImgService cloudinaryImgService;
+    @Autowired
+    private AuthProxy authProxy;
 
     @Override
     public void registerUser(UserDto userDto) {
-        User user =  User
+        User user = User
                 .builder()
                 .id(userDto.getId())
                 .firstName(userDto.getFirstName())
@@ -33,17 +44,18 @@ public class UserServiceImpl implements UserService{
                 .isPremium(userDto.isPremium())
                 .trialValid(userDto.getTrialValid())
                 .build();
-    userRepository.save(user);
+        userRepository.save(user);
     }
 
     @Override
-    public UserAddResponse addUser(UserAddRequest req , MultipartFile img) {
+    public UserAddResponse addUser(UserAddRequest req, MultipartFile img) {
         UUID userId = req.getId();
         Optional<User> optionalUser = userRepository.findById(userId);
-        if(optionalUser.isPresent()){
+        if (optionalUser.isPresent()) {
             String folder = "profile_pictures";
-            Map data =  cloudinaryImgService.upload(img,folder);
+            Map data = cloudinaryImgService.upload(img, folder);
             String imageUrl = (String) data.get("secure_url");
+            String publicId = (String) data.get("public_id");
             User user = optionalUser.get();
             user.setGender(req.getGender());
             user.setAge(req.getAge());
@@ -56,11 +68,12 @@ public class UserServiceImpl implements UserService{
             user.setWeight(req.getWeight());
             user.setTargetWeight(req.getTargetWeight());
             user.setImageName(imageUrl);
+            user.setImagePublicId(publicId);
 
             User savedUser = userRepository.save(user);
-            return  UserAddResponse.builder()
+            return UserAddResponse.builder()
                     .user(savedUser)
-                    .message("User updated successfully...")
+                    .message("User added successfully...")
                     .statusCode(HttpStatus.OK.value())
                     .build();
         }
@@ -73,10 +86,140 @@ public class UserServiceImpl implements UserService{
     @Override
     public User getUserDetails(UUID userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
-        if(optionalUser.isPresent()){
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             return user;
         }
         return null;
     }
+
+    @Override
+    public UserAddResponse updateUser(UserAddRequest req, MultipartFile img) {
+        UUID userId = req.getId();
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            String folder = "profile_pictures";
+            Map data = cloudinaryImgService.upload(img, folder);
+            String imageUrl = (String) data.get("secure_url");
+            String publicId = (String) data.get("public_id");
+            User user = optionalUser.get();
+            user.setGender(req.getGender());
+            user.setAge(req.getAge());
+            user.setDailyActivity(req.getDailyActivity());
+            user.setEmotionalHealth(req.getEmotionalHealth());
+            user.setPhone(req.getPhone());
+            user.setCity(req.getCity());
+            user.setMedicalConditions(req.getMedicalConditions());
+            user.setHeight(req.getHeight());
+            user.setWeight(req.getWeight());
+            user.setTargetWeight(req.getTargetWeight());
+            user.setImageName(imageUrl);
+            user.setImagePublicId(publicId);
+            User savedUser = userRepository.save(user);
+            return UserAddResponse.builder()
+                    .user(savedUser)
+                    .message("User updated successfully...")
+                    .statusCode(HttpStatus.OK.value())
+                    .build();
+        }
+        return UserAddResponse.builder()
+                .message("User not found")
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .build();
+    }
+    @Override
+    public UserAddResponse editUser(UserAddRequest req) {
+        UUID userId = req.getId();
+        System.out.println(userId+">>>>>userId");
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if(optionalUser.isPresent()){
+            User user = optionalUser.get();
+            user.setGender(req.getGender());
+            user.setAge(req.getAge());
+            user.setDailyActivity(req.getDailyActivity());
+            user.setEmotionalHealth(req.getEmotionalHealth());
+            user.setPhone(req.getPhone());
+            user.setCity(req.getCity());
+            user.setMedicalConditions(req.getMedicalConditions());
+            user.setHeight(req.getHeight());
+            user.setWeight(req.getWeight());
+            user.setTargetWeight(req.getTargetWeight());
+            user.setImageName(user.getImageName());
+            user.setImagePublicId(user.getImagePublicId());
+            user.setPremium(user.isPremium());
+            user.setTrialValid(user.getTrialValid());
+            user.setTrainerValid(user.getTrainerValid());
+            user.setTrainer(user.getTrainer());
+            User savedUser = userRepository.save(user);
+            return UserAddResponse.builder()
+                    .user(savedUser)
+                    .message("User updated successfully...")
+                    .statusCode(HttpStatus.OK.value())
+                    .build();
+        }
+
+        return UserAddResponse.builder()
+                .message("User not found")
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .build();
+    }
+
+    @Override
+    public Trainer getUserTrainer(UUID userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()){
+            User user = optionalUser.get();
+            Trainer trainer = user.getTrainer();
+            return trainer;
+        }
+        return null;
+    }
+
+    @Override
+    public void updatePayment(PaymentData paymentData) {
+        UUID userId = paymentData.getUserId();
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            LocalDateTime now = LocalDateTime.now();
+            if (paymentData.getAmount() == 800) {
+                // this user is valid for 6 months
+                user.setTrialValid(now.plusMonths(6));
+                user.setPremium(true);
+            } else {
+                // this user is valid for 1 month
+                user.setTrialValid(now.plusMonths(1));
+                user.setPremium(true);
+            }
+            userRepository.save(user);
+            authProxy.updatePayment(paymentData);
+        } else {
+            throw new RuntimeException("User with id " + userId + " not found");
+        }
+    }
+
+    @Override
+    public void updateTrainerPayment(TrainerPaymentData paymentData) {
+        UUID userId = paymentData.getUserId();
+        UUID trainerId = paymentData.getTrainerId();
+        User user = userRepository.findById(userId).get();
+        Trainer trainer = trainerRepository.findById(trainerId).get();
+        LocalDateTime now = LocalDateTime.now();
+        if (paymentData.getAmount() == 1000) {
+            user.setTrainerValid(now.plusMonths(1));
+        } else if (paymentData.getAmount() == 8000) {
+            user.setTrainerValid(now.plusMonths(6));
+        } else {
+            user.setTrainerValid(now.plusMonths(12));
+        }
+        user.setTrainer(trainer);
+        trainer.setSlots(trainer.getSlots()-1);
+        trainer.setClients(trainer.getClients()-1);
+        trainer.getUsers().add(user);
+        userRepository.save(user);
+        trainerRepository.save(trainer);
+    }
+
+
 }
+

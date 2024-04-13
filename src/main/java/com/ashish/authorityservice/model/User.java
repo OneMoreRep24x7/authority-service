@@ -1,7 +1,10 @@
 package com.ashish.authorityservice.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,8 +36,15 @@ public class User {
     private Double weight;
     private Double targetWeight;
     private String imageName;
+    private String imagePublicId;
     private boolean isPremium;
     private LocalDateTime trialValid;
+    private LocalDateTime trainerValid;
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "trainer_id")
+    private Trainer trainer;
+
 
 
 }

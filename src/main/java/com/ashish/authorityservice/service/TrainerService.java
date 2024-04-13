@@ -20,4 +20,9 @@ public interface TrainerService {
     List<Certificates> getAllCertificatesById(UUID trainerId);
 
     TrainerProfileResponse getTrainerById(UUID trainerId);
+
+    List<Trainer> getAllTrainers();
+
+
+    TrainerProfileResponse editTrainer(TrainerProfileRequest editRequest);
 }

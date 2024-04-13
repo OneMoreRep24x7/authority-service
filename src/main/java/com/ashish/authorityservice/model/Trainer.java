@@ -26,8 +26,12 @@ public class Trainer {
     private int clients;
     private String qualifications;
     private String imageName;
+    private String imagePublicId;
     private boolean isActive;
     @JsonManagedReference
     @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Certificates> certificates;
+    @JsonManagedReference
+    @OneToMany(mappedBy = "trainer",fetch = FetchType.EAGER)
+    private List<User> users;
 }

@@ -20,6 +20,8 @@ public class Certificates {
 
     private String imageName;
 
+    private String imagePublicId;
+
     @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
     private Trainer trainer;

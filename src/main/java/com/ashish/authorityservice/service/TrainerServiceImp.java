@@ -6,8 +6,10 @@ import com.ashish.authorityservice.dto.TrainerProfileRequest;
 import com.ashish.authorityservice.dto.TrainerProfileResponse;
 import com.ashish.authorityservice.model.Certificates;
 import com.ashish.authorityservice.model.Trainer;
+import com.ashish.authorityservice.model.User;
 import com.ashish.authorityservice.repository.CertificateRepository;
 import com.ashish.authorityservice.repository.TrainerRepository;
+import com.ashish.authorityservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,11 +23,13 @@ import java.util.UUID;
 @Service
 public class TrainerServiceImp implements TrainerService{
     @Autowired
-    TrainerRepository trainerRepository;
+    private TrainerRepository trainerRepository;
     @Autowired
-    CloudinaryImgService cloudinaryImgService;
+    private CloudinaryImgService cloudinaryImgService;
     @Autowired
-    CertificateRepository certificateRepository;
+    private CertificateRepository certificateRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public void registerTrainer(TrainerDto trainerDto) {
@@ -49,10 +53,12 @@ public class TrainerServiceImp implements TrainerService{
             String  folder = "trainer_profile";
             Map data =  cloudinaryImgService.upload(file,folder);
             String imageUrl = (String) data.get("secure_url");
+            String publicId = (String) data.get("public_id");
             Trainer trainer = optionalTrainer.get();
             trainer.setQualifications(trainerReq.getQualification());
             trainer.setSlots(trainerReq.getSlots());
             trainer.setImageName(imageUrl);
+            trainer.setImagePublicId(publicId);
 
             Trainer savedTrainer = trainerRepository.save(trainer);
             return TrainerProfileResponse.builder()
@@ -68,6 +74,28 @@ public class TrainerServiceImp implements TrainerService{
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .build();
     }
+    @Override
+    public TrainerProfileResponse editTrainer(TrainerProfileRequest trainerReq) {
+        UUID trainerId = trainerReq.getId();
+        Optional<Trainer> optionalTrainer = trainerRepository.findById(trainerId);
+        if(optionalTrainer.isPresent()){
+            Trainer trainer = optionalTrainer.get();
+            trainer.setQualifications(trainerReq.getQualification());
+            trainer.setSlots(trainerReq.getSlots());
+            trainer.setImageName(trainer.getImageName());
+            trainer.setImagePublicId(trainer.getImagePublicId());
+            Trainer savedTrainer = trainerRepository.save(trainer);
+            return TrainerProfileResponse.builder()
+                    .trainer(savedTrainer)
+                    .message("Trainer profile added successfully..")
+                    .statusCode(HttpStatus.OK.value())
+                    .build();
+        }
+        return TrainerProfileResponse.builder()
+                .message("Trainer not exist")
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .build();
+    }
 
     @Override
     public CertificateDto addCertificate(MultipartFile[] files,UUID trainerId) {
@@ -76,10 +104,11 @@ public class TrainerServiceImp implements TrainerService{
         for(MultipartFile file : files){
             Map data =  cloudinaryImgService.upload(file,folder);
             String imageUrl = (String) data.get("secure_url");
-
+            String publicId = (String) data.get("public_id");
             Certificates certificates = Certificates.builder()
                     .trainer(trainer)
                     .imageName(imageUrl)
+                    .imagePublicId(publicId)
                     .build();
             certificateRepository.save(certificates);
         }
@@ -110,4 +139,13 @@ public class TrainerServiceImp implements TrainerService{
                 .statusCode(HttpStatus.NO_CONTENT.value())
                 .build();
     }
+
+    @Override
+    public List<Trainer> getAllTrainers() {
+        return trainerRepository.findAll();
+    }
+
+
+
+
 }

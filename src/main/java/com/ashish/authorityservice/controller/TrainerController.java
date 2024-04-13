@@ -35,6 +35,13 @@ public class TrainerController {
         return ResponseEntity.ok(trainerService.addTrainer(trainerAddRequest,file));
     }
 
+    @PostMapping("/editTrainerProfile")
+    public ResponseEntity<TrainerProfileResponse> editTrainer(
+            @RequestBody TrainerProfileRequest editRequest
+    ){
+        return ResponseEntity.ok(trainerService.editTrainer(editRequest));
+    }
+
     @PostMapping("/addCertificates")
     public ResponseEntity<CertificateDto> addCertificate(
             @RequestParam("trainerId") UUID trainerId,
@@ -56,4 +63,11 @@ public class TrainerController {
     ){
         return ResponseEntity.ok(trainerService.getTrainerById(trainerId));
     }
+
+    @GetMapping("/getAllTrainers")
+    public ResponseEntity<List<Trainer>> getAllTrainers(){
+        return ResponseEntity.ok(trainerService.getAllTrainers());
+    }
+
+
 }
