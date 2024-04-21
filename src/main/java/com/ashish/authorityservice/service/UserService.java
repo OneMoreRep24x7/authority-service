@@ -23,4 +23,8 @@ public interface UserService {
     UserAddResponse editUser(UserAddRequest editReq);
 
     Trainer getUserTrainer(UUID userId);
+
+    CommonResponseDTO saveBMI(UUID userId);
+
+    TargetWeightResponse findTargetWeightRange(UUID userId);
 }

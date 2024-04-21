@@ -38,8 +38,10 @@ public class User {
     private String imageName;
     private String imagePublicId;
     private boolean isPremium;
+    private double BMI;
     private LocalDateTime trialValid;
     private LocalDateTime trainerValid;
+
     @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "trainer_id")

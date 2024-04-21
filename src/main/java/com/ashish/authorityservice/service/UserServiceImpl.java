@@ -176,6 +176,37 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public CommonResponseDTO saveBMI(UUID userId) {
+        User user = userRepository.findById(userId).get();
+        double height = user.getHeight();
+        double weight = user.getWeight();
+        double heightInMeter = height/100;
+        double BMI = weight/(heightInMeter*heightInMeter);
+        BMI = Double.parseDouble(String.format("%.1f", BMI));
+        user.setBMI(BMI);
+        userRepository.save(user);
+        return CommonResponseDTO.builder()
+                .message("BMI updated successfully..")
+                .statusCode(HttpStatus.OK.value())
+                .build();
+    }
+
+    @Override
+    public TargetWeightResponse findTargetWeightRange(UUID userId) {
+        User user = userRepository.findById(userId).get();
+
+        double height = user.getHeight()/100;
+        double startRange = 18.5*(height*height);
+        double endRange = 24.9*(height*height);
+        startRange = Double.parseDouble(String.format("%.1f", startRange));
+        endRange = Double.parseDouble(String.format("%.1f", endRange));
+        return TargetWeightResponse.builder()
+                .startRange(startRange)
+                .endRange(endRange)
+                .build();
+    }
+
+    @Override
     public void updatePayment(PaymentData paymentData) {
         UUID userId = paymentData.getUserId();
         Optional<User> optionalUser = userRepository.findById(userId);
@@ -214,7 +245,7 @@ public class UserServiceImpl implements UserService {
         }
         user.setTrainer(trainer);
         trainer.setSlots(trainer.getSlots()-1);
-        trainer.setClients(trainer.getClients()-1);
+        trainer.setClients(trainer.getClients()+1);
         trainer.getUsers().add(user);
         userRepository.save(user);
         trainerRepository.save(trainer);

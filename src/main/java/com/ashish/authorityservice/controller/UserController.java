@@ -78,5 +78,18 @@ public class UserController {
     ){
         return ResponseEntity.ok(userService.getUserTrainer(userId));
     }
+    @GetMapping("/saveBMI")
+    public ResponseEntity<CommonResponseDTO> saveBMI(
+            @RequestParam UUID userId
+    ){
+        return ResponseEntity.ok(userService.saveBMI(userId));
+    }
+    @GetMapping("/getTargetWeightRange")
+    public ResponseEntity<TargetWeightResponse> getTargetWeightRange(
+            @RequestParam UUID userId
+    ){
+        return ResponseEntity.ok(userService.findTargetWeightRange(userId));
+    }
+
 
 }
