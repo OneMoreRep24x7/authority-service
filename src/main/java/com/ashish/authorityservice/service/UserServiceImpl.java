@@ -66,7 +66,6 @@ public class UserServiceImpl implements UserService {
             user.setMedicalConditions(req.getMedicalConditions());
             user.setHeight(req.getHeight());
             user.setWeight(req.getWeight());
-            user.setTargetWeight(req.getTargetWeight());
             user.setImageName(imageUrl);
             user.setImagePublicId(publicId);
 
@@ -112,7 +111,6 @@ public class UserServiceImpl implements UserService {
             user.setMedicalConditions(req.getMedicalConditions());
             user.setHeight(req.getHeight());
             user.setWeight(req.getWeight());
-            user.setTargetWeight(req.getTargetWeight());
             user.setImageName(imageUrl);
             user.setImagePublicId(publicId);
             User savedUser = userRepository.save(user);
@@ -143,7 +141,6 @@ public class UserServiceImpl implements UserService {
             user.setMedicalConditions(req.getMedicalConditions());
             user.setHeight(req.getHeight());
             user.setWeight(req.getWeight());
-            user.setTargetWeight(req.getTargetWeight());
             user.setImageName(user.getImageName());
             user.setImagePublicId(user.getImagePublicId());
             user.setPremium(user.isPremium());
@@ -203,6 +200,59 @@ public class UserServiceImpl implements UserService {
         return TargetWeightResponse.builder()
                 .startRange(startRange)
                 .endRange(endRange)
+                .build();
+    }
+
+    @Override
+    public TrainerProfileResponse findTrainerByUserId(UUID userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if(optionalUser.isPresent()){
+            User user = optionalUser.get();
+            Trainer trainer = user.getTrainer();
+            if(trainer!=null && user.getTrainerValid().isAfter(LocalDateTime.now())){
+                return TrainerProfileResponse.builder()
+                        .trainer(trainer)
+                        .message("Trainer fetched successfully...")
+                        .statusCode(HttpStatus.OK.value())
+                        .build();
+            }
+            return TrainerProfileResponse.builder()
+                    .message("Trainer not found or Expired..")
+                    .statusCode(HttpStatus.NOT_FOUND.value())
+                    .build();
+
+        }
+        return TrainerProfileResponse.builder()
+                .message("No user found!")
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .build();
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+
+    }
+
+    @Override
+    public CommonResponseDTO blockUser(UUID userId) {
+        User user = userRepository.findById(userId).get();
+        user.setActive(false);
+        userRepository.save(user);
+        return CommonResponseDTO.builder()
+                .message("User blocked successfully..")
+                .statusCode(HttpStatus.OK.value())
+                .build();
+    }
+
+    @Override
+    public CommonResponseDTO UnBlockUser(UUID userId) {
+        User user = userRepository.findById(userId).get();
+        user.setActive(true);
+        userRepository.save(user);
+        return CommonResponseDTO.builder()
+                .message("User unblocked successfully..")
+                .statusCode(HttpStatus.OK.value())
                 .build();
     }
 

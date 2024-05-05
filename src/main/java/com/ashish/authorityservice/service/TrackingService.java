@@ -9,11 +9,13 @@ public interface TrackingService {
 
     TrackingDetailsDTO getTrackingDetails(UUID userId);
 
-    TrackingDetailsDTO updateCaloriesEaten(CaloriesEatenReqDTO caloriesEatenReqDTO);
+    void updateCaloriesEaten(CaloriesEatenReqDTO caloriesEatenReqDTO);
 
-    TrackingDetailsDTO updateCaloriesBurned(CaloriesBurnReqDTO caloriesBurnReqDTO);
+    void updateCaloriesBurned(CaloriesBurnReqDTO caloriesBurnReqDTO);
 
     TrackingDetailsDTO updateWaterConsumed(WaterIntakeReqDTO waterIntakeReqDTO);
 
     TrackingDetailsDTO updateWeight(WeightTrackReqDTO weightTrackReqDTO);
+
+    CaloriesTrackDTO getCalories(UUID userId);
 }

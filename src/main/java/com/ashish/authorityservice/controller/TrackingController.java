@@ -32,17 +32,17 @@ public class TrackingController {
 
     //for updating calories eaten
     @PostMapping("/updateCaloriesEaten")
-    public ResponseEntity<TrackingDetailsDTO> updateCaloriesEaten(
+    public void updateCaloriesEaten(
             @RequestBody CaloriesEatenReqDTO caloriesEatenReqDTO
             ){
-        return ResponseEntity.ok(trackingService.updateCaloriesEaten(caloriesEatenReqDTO));
+        trackingService.updateCaloriesEaten(caloriesEatenReqDTO);
     }
     //for updating calories burned
     @PostMapping("/updateCaloriesBurned")
-    public ResponseEntity<TrackingDetailsDTO> updateCaloriesBurned(
+    public void updateCaloriesBurned(
             @RequestBody CaloriesBurnReqDTO caloriesBurnReqDTO
             ){
-        return ResponseEntity.ok(trackingService.updateCaloriesBurned(caloriesBurnReqDTO));
+            trackingService.updateCaloriesBurned(caloriesBurnReqDTO);
     }
 
     //for updating water intake

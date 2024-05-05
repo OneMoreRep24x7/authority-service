@@ -3,6 +3,7 @@ package com.ashish.authorityservice.controller;
 import com.ashish.authorityservice.dto.*;
 import com.ashish.authorityservice.model.Trainer;
 import com.ashish.authorityservice.model.User;
+import com.ashish.authorityservice.service.TrackingService;
 import com.ashish.authorityservice.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +12,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/user")
 public class UserController {
     @Autowired
-    UserService userService;
+    private UserService userService;
+
+    @Autowired
+    private TrackingService trackingService;
 
 
     @PostMapping("/register")
@@ -72,6 +77,13 @@ public class UserController {
         return ResponseEntity.ok(userService.editUser(editReq));
     }
 
+    @GetMapping("/getAllUsers")
+    public ResponseEntity<List<User>> getAllUsers(
+
+    ){
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+
     @GetMapping("/getUserTrainer")
     public ResponseEntity<Trainer> getUserTrainer(
             @RequestParam UUID userId
@@ -91,5 +103,31 @@ public class UserController {
         return ResponseEntity.ok(userService.findTargetWeightRange(userId));
     }
 
+    @GetMapping("/getTrainerById")
+    public ResponseEntity<TrainerProfileResponse> getTrainerByUserId(
+            @RequestParam UUID userId
+    ){
+        return ResponseEntity.ok(userService.findTrainerByUserId(userId));
+    }
+
+    @GetMapping("/blockUser")
+    public ResponseEntity<CommonResponseDTO> blockUser(
+            @RequestParam("userId") UUID userId
+    ){
+        return ResponseEntity.ok(userService.blockUser(userId));
+    }
+    @GetMapping("/unBlockUser")
+    public ResponseEntity<CommonResponseDTO> UnBlockUser(
+            @RequestParam("userId") UUID userId
+    ){
+        return ResponseEntity.ok(userService.UnBlockUser(userId));
+    }
+
+    @GetMapping("/getCalories")
+    public ResponseEntity<CaloriesTrackDTO > getCalories(
+            @RequestParam("userId") UUID userId
+    ){
+        return ResponseEntity.ok(trackingService.getCalories(userId));
+    }
 
 }

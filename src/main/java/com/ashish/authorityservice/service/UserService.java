@@ -5,6 +5,7 @@ import com.ashish.authorityservice.model.Trainer;
 import com.ashish.authorityservice.model.User;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
@@ -27,4 +28,12 @@ public interface UserService {
     CommonResponseDTO saveBMI(UUID userId);
 
     TargetWeightResponse findTargetWeightRange(UUID userId);
+
+    TrainerProfileResponse findTrainerByUserId(UUID userId);
+
+    List<User> getAllUsers();
+
+    CommonResponseDTO blockUser(UUID userId);
+
+    CommonResponseDTO UnBlockUser(UUID userId);
 }

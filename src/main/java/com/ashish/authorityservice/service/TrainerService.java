@@ -1,9 +1,6 @@
 package com.ashish.authorityservice.service;
 
-import com.ashish.authorityservice.dto.CertificateDto;
-import com.ashish.authorityservice.dto.TrainerDto;
-import com.ashish.authorityservice.dto.TrainerProfileRequest;
-import com.ashish.authorityservice.dto.TrainerProfileResponse;
+import com.ashish.authorityservice.dto.*;
 import com.ashish.authorityservice.model.Certificates;
 import com.ashish.authorityservice.model.Trainer;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,4 +22,8 @@ public interface TrainerService {
 
 
     TrainerProfileResponse editTrainer(TrainerProfileRequest editRequest);
+
+    CommonResponseDTO blockTrainer(UUID trainerId);
+
+    CommonResponseDTO unBlockTrainer(UUID trainerId);
 }

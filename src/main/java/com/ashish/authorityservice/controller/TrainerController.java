@@ -42,6 +42,9 @@ public class TrainerController {
         return ResponseEntity.ok(trainerService.editTrainer(editRequest));
     }
 
+
+
+
     @PostMapping("/addCertificates")
     public ResponseEntity<CertificateDto> addCertificate(
             @RequestParam("trainerId") UUID trainerId,
@@ -61,6 +64,7 @@ public class TrainerController {
     public ResponseEntity<TrainerProfileResponse> getTrainerById(
             @RequestParam("trainerId") UUID trainerId
     ){
+        System.out.println(trainerId+"TrainerID");
         return ResponseEntity.ok(trainerService.getTrainerById(trainerId));
     }
 
@@ -69,5 +73,17 @@ public class TrainerController {
         return ResponseEntity.ok(trainerService.getAllTrainers());
     }
 
+    @GetMapping("/blockTrainer")
+    public ResponseEntity<CommonResponseDTO> blockTrainer(
+            @RequestParam("trainerId") UUID trainerId
+    ){
+        return ResponseEntity.ok(trainerService.blockTrainer(trainerId));
+    }
+    @GetMapping("/unBlockTrainer")
+    public ResponseEntity<CommonResponseDTO> unBlockTrainer(
+            @RequestParam("trainerId") UUID trainerId
+    ){
+        return ResponseEntity.ok(trainerService.unBlockTrainer(trainerId));
+    }
 
 }

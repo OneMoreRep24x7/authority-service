@@ -10,8 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TrackingServiceImp implements TrackingService{
@@ -98,7 +101,7 @@ public class TrackingServiceImp implements TrackingService{
                     .primaryGoal(primaryGoalParams.getPrimaryGoal())
                     .targetWeight(primaryGoalParams.getTargetWeight())
                     .currentWeight(user.getWeight())
-                    .caloriesNeeded(Double.parseDouble(String.format("%.1f", caloriesNeededPerDay)))
+                    .caloriesNeeded((int) Math.round(caloriesNeededPerDay))
                     .workoutBurn(caloriesBurnedPerDay)
                     .waterIntake(noOfGlass)
                     .trackingDate(LocalDate.now())
@@ -131,7 +134,7 @@ public class TrackingServiceImp implements TrackingService{
     }
 
     @Override
-    public TrackingDetailsDTO updateCaloriesEaten(CaloriesEatenReqDTO caloriesEatenReqDTO) {
+    public void updateCaloriesEaten(CaloriesEatenReqDTO caloriesEatenReqDTO) {
         UUID userId = caloriesEatenReqDTO.getUserId();
         Optional<Tracking> optionalTracking = trackingRepository.findFirstByUserIdOrderByTrackingDateDesc(userId);
         if(optionalTracking.isPresent()){
@@ -144,20 +147,12 @@ public class TrackingServiceImp implements TrackingService{
                     tracking.setCaloriesEaten(tracking.getCaloriesEaten()+caloriesEaten);
                     tracking.setTrackingDate(currentDate);
                     Tracking savedTracking =  trackingRepository.save(tracking);
-                    return TrackingDetailsDTO.builder()
-                            .details(savedTracking)
-                            .message("Food removed successfully")
-                            .statusCode(HttpStatus.OK.value())
-                            .build();
+
                 }else {
                     tracking.setCaloriesEaten(tracking.getCaloriesEaten()+caloriesEaten);
                     tracking.setTrackingDate(currentDate);
                     Tracking savedTracking =  trackingRepository.save(tracking);
-                    return TrackingDetailsDTO.builder()
-                            .details(savedTracking)
-                            .message("Food added successfully")
-                            .statusCode(HttpStatus.OK.value())
-                            .build();
+
                 }
 
 
@@ -177,23 +172,16 @@ public class TrackingServiceImp implements TrackingService{
                         .waterConsumed(0)
                         .build();
                 Tracking savedTracking = trackingRepository.save(newTracking);
-                return  TrackingDetailsDTO.builder()
-                        .details(savedTracking)
-                        .message("food added successfully")
-                        .statusCode(HttpStatus.OK.value())
-                        .build();
+
             }
 
 
         }
-        return TrackingDetailsDTO.builder()
-                .message("Tracking is not yet started!")
-                .statusCode(HttpStatus.NO_CONTENT.value())
-                .build();
+
     }
 
     @Override
-    public TrackingDetailsDTO updateCaloriesBurned(CaloriesBurnReqDTO caloriesBurnReqDTO) {
+    public void updateCaloriesBurned(CaloriesBurnReqDTO caloriesBurnReqDTO) {
         UUID userId = caloriesBurnReqDTO.getUserId();
         Optional<Tracking> optionalTracking = trackingRepository.findFirstByUserIdOrderByTrackingDateDesc(userId);
         if(optionalTracking.isPresent()){
@@ -206,20 +194,12 @@ public class TrackingServiceImp implements TrackingService{
                     tracking.setCaloriesBurned(tracking.getCaloriesBurned() + caloriesBurned);
                     tracking.setTrackingDate(currentDate);
                     Tracking savedTracking =  trackingRepository.save(tracking);
-                    return TrackingDetailsDTO.builder()
-                            .details(savedTracking)
-                            .message("workout removed successfully")
-                            .statusCode(HttpStatus.OK.value())
-                            .build();
+
                 }else {
                     tracking.setCaloriesBurned(tracking.getCaloriesBurned()+caloriesBurned);
                     tracking.setTrackingDate(currentDate);
                     Tracking savedTracking = trackingRepository.save(tracking);
-                    return TrackingDetailsDTO.builder()
-                            .details(savedTracking)
-                            .message("workout added successfully")
-                            .statusCode(HttpStatus.OK.value())
-                            .build();
+
                 }
             }else{
                 Tracking newTracking = Tracking.builder()
@@ -236,19 +216,12 @@ public class TrackingServiceImp implements TrackingService{
                         .waterConsumed(0)
                         .build();
                 Tracking savedTracking = trackingRepository.save(newTracking);
-                return  TrackingDetailsDTO.builder()
-                        .details(savedTracking)
-                        .message("workout added successfully")
-                        .statusCode(HttpStatus.OK.value())
-                        .build();
+
             }
 
 
         }
-        return TrackingDetailsDTO.builder()
-                .message("Tracking is not yet started!")
-                .statusCode(HttpStatus.NO_CONTENT.value())
-                .build();
+
     }
 
     @Override
@@ -371,5 +344,61 @@ public class TrackingServiceImp implements TrackingService{
                 .statusCode(HttpStatus.NO_CONTENT.value())
                 .build();
     }
+
+    @Override
+    public CaloriesTrackDTO getCalories(UUID userId) {
+        LocalDate startDate = getStartOfLast10Days();
+        LocalDate endDate = getYesterday();
+
+        // Fetch tracking data for the specified date range
+        List<Tracking> trackingData = trackingRepository.findByUserIdAndDateRange(
+                userId, startDate, endDate);
+
+        HashMap<String, Double> caloriesEaten = new HashMap<>();
+        HashMap<String, Double> caloriesBurned = new HashMap<>();
+
+        // Initialize with zeros for each of the last 10 days
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            caloriesEaten.put(date.toString(), 0.0);
+            caloriesBurned.put(date.toString(), 0.0);
+        }
+
+        // Aggregate data for each of the last 10 days
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            LocalDate finalDate = date;
+            List<Tracking> dailyTracking = trackingData.stream()
+                    .filter(t -> t.getTrackingDate().isEqual(finalDate))
+                    .collect(Collectors.toList());
+
+            // Aggregate daily calories
+            double dailyCaloriesEaten = dailyTracking.stream()
+                    .mapToDouble(Tracking::getCaloriesEaten)
+                    .sum();
+
+            double dailyCaloriesBurned = dailyTracking.stream()
+                    .mapToDouble(Tracking::getCaloriesBurned)
+                    .sum();
+
+            // Store data in the maps
+            caloriesEaten.put(date.toString(), dailyCaloriesEaten);
+            caloriesBurned.put(date.toString(), dailyCaloriesBurned);
+        }
+
+        // Return the DTO with the collected data
+        return CaloriesTrackDTO.builder()
+                .caloriesEaten(caloriesEaten)
+                .caloriesBurned(caloriesBurned)
+                .build();
+    }
+
+
+    public static LocalDate getStartOfLast10Days() {
+        return LocalDate.now().minusDays(10);
+    }
+
+    public static LocalDate getYesterday() {
+        return LocalDate.now().minusDays(1);
+    }
+
 
 }

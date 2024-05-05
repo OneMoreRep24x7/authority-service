@@ -1,9 +1,6 @@
 package com.ashish.authorityservice.service;
 
-import com.ashish.authorityservice.dto.CertificateDto;
-import com.ashish.authorityservice.dto.TrainerDto;
-import com.ashish.authorityservice.dto.TrainerProfileRequest;
-import com.ashish.authorityservice.dto.TrainerProfileResponse;
+import com.ashish.authorityservice.dto.*;
 import com.ashish.authorityservice.model.Certificates;
 import com.ashish.authorityservice.model.Trainer;
 import com.ashish.authorityservice.model.User;
@@ -94,6 +91,28 @@ public class TrainerServiceImp implements TrainerService{
         return TrainerProfileResponse.builder()
                 .message("Trainer not exist")
                 .statusCode(HttpStatus.NOT_FOUND.value())
+                .build();
+    }
+
+    @Override
+    public CommonResponseDTO blockTrainer(UUID trainerId) {
+        Trainer trainer = trainerRepository.findById(trainerId).get();
+        trainer.setActive(false);
+        trainerRepository.save(trainer);
+        return CommonResponseDTO.builder()
+                .message("Trainer blocked successfully")
+                .statusCode(HttpStatus.OK.value())
+                .build();
+    }
+
+    @Override
+    public CommonResponseDTO unBlockTrainer(UUID trainerId) {
+        Trainer trainer = trainerRepository.findById(trainerId).get();
+        trainer.setActive(true);
+        trainerRepository.save(trainer);
+        return CommonResponseDTO.builder()
+                .message("Trainer unblocked successfully")
+                .statusCode(HttpStatus.OK.value())
                 .build();
     }
 

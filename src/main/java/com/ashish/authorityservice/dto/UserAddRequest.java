@@ -21,6 +21,6 @@ public class UserAddRequest {
     private String medicalConditions;
     private Double height;
     private Double weight;
-    private Double targetWeight;
+
 
 }
